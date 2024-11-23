@@ -32,3 +32,33 @@ def delete_professional_by_id(db: Session, prof_id: int):
         db.rollback()  # Rollback in case of an error
         print(f"Error during deletion: {str(e)}")  # Debug log
         return f"An error occurred: {str(e)}"
+    
+def get_users(db: Session):
+    sql = text("SELECT * FROM get_users()")
+    result = db.execute(sql).fetchall()
+    users = [row._asdict() for row in result]
+    return users
+
+def get_professionals(db: Session):
+    sql = text("SELECT * FROM get_professionals()")
+    result = db.execute(sql).fetchall()
+    professionals = [row._asdict() for row in result]
+    return professionals
+
+def get_subscriptions(db: Session):
+    sql = text("SELECT * FROM get_subscriptions()")
+    result = db.execute(sql).fetchall()
+    subscriptions = [row._asdict() for row in result]
+    return subscriptions
+
+def get_daily_meal_logs(db: Session):
+    sql = text("SELECT * FROM get_daily_meal_logs()")
+    result = db.execute(sql).fetchall()
+    meal_logs = [row._asdict() for row in result]
+    return meal_logs
+
+def get_metrics(db: Session):
+    sql = text("SELECT * FROM get_metrics()")
+    result = db.execute(sql).fetchall()
+    metrics = [row._asdict() for row in result]
+    return metrics

@@ -1,7 +1,7 @@
 from fastapi import FastAPI, APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from models import Item, Subscription, Professional, User, Base
-from functions import get_users_by_prof_id, delete_professional_by_id
+from functions import get_users_by_prof_id, delete_professional_by_id, get_subscriptions, get_professionals, get_daily_meal_logs, get_metrics, get_users
 from database import get_db, engine
 
 # Create database tables
@@ -26,8 +26,8 @@ async def create_item(name: str, db: Session = Depends(get_db)):
 # Read Subscriptions
 @router.get("/subscriptions", response_model=list[dict])
 async def read_subscriptions(db: Session = Depends(get_db)):
-    subscriptions = db.query(Subscription).all()
-    return [{"subscriptionid": sub.subscriptionid, "subscriptiontype": sub.subscriptiontype, "billingcycle": sub.billingcycle} for sub in subscriptions]
+    subscriptions = get_subscriptions(db)
+    return subscriptions
 
 # Create Subscription
 @router.post("/subscriptions/", response_model=dict)
@@ -47,8 +47,8 @@ async def create_subscription(subscriptiontype: str, billingcycle: str, startdat
 # Read Professionals
 @router.get("/professionals", response_model=list[dict])
 async def read_professionals(db: Session = Depends(get_db)):
-    professionals = db.query(Professional).all()
-    return [{"professionalid": prof.professionalid, "name": prof.name, "email": prof.email, "maxseats":prof.maxseats, "currentseats":prof.currentseats,"subscriptionid":prof.subscriptionid} for prof in professionals]
+    professionals = get_professionals(db)
+    return professionals
 
 # Create Professional
 @router.post("/professional/", response_model=dict)
@@ -67,9 +67,9 @@ async def create_professional(name: str, email: str, maxseats: int, currentseats
 
 # Read Users
 @router.get("/users", response_model=list[dict])
-async def read_users(db: Session = Depends(get_db)):
-    users = db.query(User).all()
-    return [{"userid": user.userid, "name": user.name, "email": user.email, "country": user.country} for user in users]
+async def read_metrics(db: Session = Depends(get_db)):
+    users = get_users(db)
+    return users
 
 # Create User
 @router.post("/users/", response_model=dict)
@@ -122,3 +122,13 @@ def delete_professional(prof_id: int, db: Session = Depends(get_db)):
     except Exception as e:
         # Log unexpected errors
         return {"error": f"Unexpected error occurred: {str(e)}"}
+    
+@router.get("/dailymeal-logs", response_model=list[dict])
+async def read_daily_meal_logs(db: Session = Depends(get_db)):
+    daily_meal_logs = get_daily_meal_logs(db)
+    return daily_meal_logs
+
+@router.get("/metrics", response_model=list[dict])
+async def read_metrics(db: Session = Depends(get_db)):
+    metrics = get_metrics(db)
+    return metrics
