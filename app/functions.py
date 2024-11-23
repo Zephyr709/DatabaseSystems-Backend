@@ -23,7 +23,7 @@ def delete_professional_by_id(db: Session, prof_id: int):
     """
     try:
         # Call the SQL function
-        sql = text("SELECT delete_professional(:prof_id)")
+        sql     = text("SELECT delete_professional(:prof_id)")
         print(f"Executing SQL: {sql}, with prof_id: {prof_id}")  # Debug log
         db.execute(sql, {"prof_id": prof_id})
         db.commit()  # Commit the transaction
@@ -32,3 +32,21 @@ def delete_professional_by_id(db: Session, prof_id: int):
         db.rollback()  # Rollback in case of an error
         print(f"Error during deletion: {str(e)}")  # Debug log
         return f"An error occurred: {str(e)}"
+    
+
+
+#Added in branch
+def get_specific_user_by_id(db: Session, sUserID: int):
+    try:
+        # Execute the SQL function to get the user details
+        sql = text("SELECT * FROM get_user_by_userid(:sUserID)")
+        result = db.execute(sql, {"sUserID": sUserID}).fetchone()
+
+        # Convert the SQL result to a dictionary
+        user = result._asdict()
+        return user
+
+    except Exception as e:
+        # Log or handle exceptions
+        print(f"Error fetching user by ID {sUserID}: {str(e)}")
+        return f"An error occurred: {str(e)}"  

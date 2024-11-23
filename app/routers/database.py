@@ -1,7 +1,7 @@
 from fastapi import FastAPI, APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from models import Item, Subscription, Professional, User, Base
-from functions import get_users_by_prof_id, delete_professional_by_id
+from functions import get_users_by_prof_id, delete_professional_by_id, get_specific_user_by_id
 from database import get_db, engine
 
 # Create database tables
@@ -122,3 +122,15 @@ def delete_professional(prof_id: int, db: Session = Depends(get_db)):
     except Exception as e:
         # Log unexpected errors
         return {"error": f"Unexpected error occurred: {str(e)}"}
+    
+
+#Added in branch
+@router.get("/users/{sUserID}")
+def get_specific_user(sUserID: int, db: Session = Depends(get_db)):
+    
+    #user = db.query(User).filter(User.userid == sUserID).first()
+    #return {"userid": user.userid, "name": user.name, "email": user.email, "country": user.country}
+
+    
+    user = get_specific_user_by_id(db, sUserID)
+    return {"user": user}
