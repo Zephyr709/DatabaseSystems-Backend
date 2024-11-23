@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String, Text, Numeric, BigInteger, DateTime, ForeignKey
+from sqlalchemy import create_engine, Column, Integer, String, Text, Numeric, BigInteger, DateTime, ForeignKey, TIMESTAMP
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from datetime import datetime
@@ -73,3 +73,27 @@ class User(Base):
 
     def __repr__(self):
         return f"<User(userid={self.userid}, name={self.name})>"
+    
+class Metrics(Base):
+    __tablename__ = 'metrics'
+    
+    metricsid = Column(BigInteger, primary_key=True, autoincrement=True)
+    inputtokenusage = Column(Integer, nullable=False)
+    outputtokenusage = Column(Integer, nullable=False)
+    userid = Column(BigInteger, ForeignKey('users.userid'))
+
+class DailyMealLog(Base):
+    __tablename__ = "dailymeallog"  # Table name in lowercase
+    
+    meallogid = Column(BigInteger, primary_key=True, autoincrement=True)  # Auto-incrementing primary key
+    userid = Column(BigInteger, ForeignKey("users.userid"), nullable=False)  # Foreign key to users table
+    fooditemid = Column(BigInteger, ForeignKey("fooditem.fooditemid"), nullable=False)  # Foreign key to fooditem table
+    datelogged = Column(TIMESTAMP(timezone=True), nullable=False)  # Date when the meal was logged
+
+    food_item = relationship("FoodItem", back_populates="daily_meal_logs")
+
+class FoodItem(Base):
+    __tablename__ = "fooditem"
+    
+    fooditemid = Column(BigInteger, primary_key=True)
+    daily_meal_logs = relationship("DailyMealLog", back_populates="food_item")

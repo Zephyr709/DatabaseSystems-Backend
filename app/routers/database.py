@@ -1,6 +1,6 @@
 from fastapi import FastAPI, APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from models import Item, Subscription, Professional, User, Base
+from models import Item, Subscription, Professional, User, Base, Metrics, DailyMealLog
 from functions import get_users_by_prof_id, delete_professional_by_id
 from database import get_db, engine
 
@@ -64,6 +64,18 @@ async def create_professional(name: str, email: str, maxseats: int, currentseats
     db.commit()
     db.refresh(new_professional)
     return {"professionalid": new_professional.professionalid, "name": new_professional.name, "email": new_professional.email}
+@router.get("/daily_meal_logs", response_model=list[dict])
+async def read_daily_meal_logs(db: Session = Depends(get_db)):
+    daily_meal_logs = db.query(DailyMealLog).all()
+    return [
+        {
+            "meallogid": log.meallogid,
+            "userid": log.userid,
+            "fooditemid": log.fooditemid,
+            "datelogged": log.datelogged
+        }
+        for log in daily_meal_logs
+    ]
 
 # Read Users
 @router.get("/users", response_model=list[dict])
@@ -106,6 +118,11 @@ async def create_user(
     db.commit()
     db.refresh(new_user)
     return {"userid": new_user.userid, "name": new_user.name, "email": new_user.email}
+
+@router.get("/metrics", response_model=list[dict])
+async def read_metrics(db: Session = Depends(get_db)):
+    metrics = db.query(Metrics).all()
+    return [{"metricsid": metric.metricsid, "inputtokenusage": metric.inputtokenusage, "outputtokenusage": metric.outputtokenusage, "userid": metric.userid} for metric in metrics]
 
 @router.get("/professionals/{prof_id}/users")
 def get_users(prof_id: int, db: Session = Depends(get_db)):
