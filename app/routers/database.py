@@ -1,8 +1,10 @@
 from fastapi import FastAPI, APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
 from models import Item, Subscription, Professional, User, Base, Metrics, DailyMealLog
 from functions import get_users_by_prof_id, delete_professional_by_id
 from database import get_db, engine
+from sqlalchemy.orm import Session, Query
+from sqlalchemy.sql import text
+from sqlalchemy.inspection import inspect
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
@@ -139,3 +141,51 @@ def delete_professional(prof_id: int, db: Session = Depends(get_db)):
     except Exception as e:
         # Log unexpected errors
         return {"error": f"Unexpected error occurred: {str(e)}"}
+
+@router.get("/sortData")
+async def sort_data(
+    table: str,
+    sortBy: str,
+    order: str = Query(text("asc")),
+    db: Session = Depends(get_db)
+):
+    # Define a mapping for tables and their corresponding models
+    table_models = {
+        "items": Item,
+        "subscriptions": Subscription,
+        "professionals": Professional,
+        "users": User,
+        "daily_meal_logs": DailyMealLog,
+        "metrics": Metrics
+    }
+
+    # Validate if the provided table name is valid
+    if table not in table_models:
+        raise HTTPException(status_code=400, detail="Invalid table name provided")
+
+    # Get the model for the requested table
+    model = table_models[table]
+
+    # Check if the column exists in the model's schema
+    columns = {column.name for column in model.__table__.columns}
+    if sortBy not in columns:
+        raise HTTPException(status_code=400, detail=f"Invalid column name '{sortBy}' for table '{table}'")
+
+    # Dynamically fetch the sorted data
+    query = db.query(model)
+    if order == "asc":
+        query = query.order_by(getattr(model, sortBy).asc())
+    else:
+        query = query.order_by(getattr(model, sortBy).desc())
+    print(model)
+    # Get the results from the database
+    results = query.all()
+
+    response = []
+    for item in results:
+        # Create a dictionary of column names and their corresponding values
+        item_data = {column.name: getattr(item, column.name) for column in model.__table__.columns}
+        response.append(item_data)
+
+    #return [{"professionalid": result.professionalid, "name": result.name, "email": result.email, "maxseats":result.maxseats, "currentseats":result.currentseats,"subscriptionid":result.subscriptionid} for result in results]
+    return response
