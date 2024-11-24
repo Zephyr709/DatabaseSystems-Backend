@@ -12,13 +12,6 @@ Base.metadata.create_all(bind=engine)
 
 
 router = APIRouter()
-
-# Read Professionals
-@router.get("/professionals", response_model=list[dict])
-async def read_professionals(db: Session = Depends(get_db)):
-    professionals = db.query(Professional).all()
-    return [{"professionalid": prof.professionalid, "name": prof.name, "email": prof.email, "maxseats":prof.maxseats, "currentseats":prof.currentseats,"subscriptionid":prof.subscriptionid} for prof in professionals]
-
 # Create Professional
 @router.post("/professional/", response_model=dict)
 async def create_professional(name: str, email: str, maxseats: int, currentseats: int, subscriptionid: int, db: Session = Depends(get_db)):
@@ -34,19 +27,36 @@ async def create_professional(name: str, email: str, maxseats: int, currentseats
     db.refresh(new_professional)
     return {"professionalid": new_professional.professionalid, "name": new_professional.name, "email": new_professional.email}
 
+# Read Professionals
+@router.get("/professionals", response_model=list[dict])
+async def read_professionals(db: Session = Depends(get_db)):
+    professionals = db.query(Professional).all()
+    return [{"professionalid": prof.professionalid, "name": prof.name, "email": prof.email, "maxseats":prof.maxseats, "currentseats":prof.currentseats,"subscriptionid":prof.subscriptionid} for prof in professionals]
 
+# Update Professional
+@router.put("/professionals/{professionalid}", response_model=dict)
+async def update_professional(professionalid: int, name: str, email: str, maxseats: int, currentseats: int, subscriptionid: int, db: Session = Depends(get_db)):
+    professional = db.query(Professional).filter(Professional.professionalid == professionalid).first()
+    professional.name = name
+    professional.email = email
+    professional.maxseats = maxseats
+    professional.currentseats = currentseats
+    professional.subscriptionid = subscriptionid
+    db.commit()
+    db.refresh(professional)
+    return {"professionalid": professional.professionalid, "name": professional.name, "email": professional.email, "maxseats": professional.maxseats, "currentseats": professional.currentseats, "subscriptionid": professional.subscriptionid}
+
+# Delete Professional
+@router.delete("/professionals/{professionalid}", response_model=dict)
+async def delete_professional(professionalid: int, db: Session = Depends(get_db)):
+    professional = db.query(Professional).filter(Professional.professionalid == professionalid).first()
+    db.delete(professional)
+    
+    db.commit()
+    return {"professionalid": professional.professionalid, "name": professional.name, "email": professional.email, "maxseats": professional.maxseats, "currentseats": professional.currentseats, "subscriptionid": professional.subscriptionid}
+
+# Read Users by Professional ID
 @router.get("/professionals/{prof_id}/users")
 def get_users(prof_id: int, db: Session = Depends(get_db)):
     users = get_users_by_prof_id(db, prof_id)
     return {"users": users}
-
-@router.delete("/professionals/{prof_id}")
-def delete_professional(prof_id: int, db: Session = Depends(get_db)):
-    try:
-        result = delete_professional_by_id(db, prof_id)
-        if "error" in result.lower():
-            raise HTTPException(status_code=400, detail=result)
-        return {"message": result}
-    except Exception as e:
-        # Log unexpected errors
-        return {"error": f"Unexpected error occurred: {str(e)}"}
