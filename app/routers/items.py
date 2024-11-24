@@ -20,7 +20,7 @@ async def read_items(db: Session = Depends(get_db)):
     return [{"id": item.id, "name": item.name} for item in items]
 
 # Create Item
-@router.post("/items/", response_model=dict)
+@router.post("/items", response_model=dict)
 async def create_item(name: str, db: Session = Depends(get_db)):
     new_item = Item(name=name)
     db.add(new_item)
