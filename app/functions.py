@@ -32,3 +32,11 @@ def delete_professional_by_id(db: Session, prof_id: int):
         db.rollback()  # Rollback in case of an error
         print(f"Error during deletion: {str(e)}")  # Debug log
         return f"An error occurred: {str(e)}"
+    
+def get_role(db: Session, user_id: int):
+    # Define the SQL query to fetch the role
+    sql = text("SELECT role_name FROM account_roles WHERE user_id = :user_id")
+    # Execute the query with the provided user_id
+    result = db.execute(sql, {"user_id": user_id}).fetchone()
+    # Return the role name if found, otherwise return None
+    return result[0] if result else None

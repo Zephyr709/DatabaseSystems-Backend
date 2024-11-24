@@ -1,11 +1,12 @@
 from fastapi import FastAPI, APIRouter, Depends, HTTPException
 from models import Item, Subscription, Professional, User, Base, Metrics, DailyMealLog
-from functions import get_users_by_prof_id, delete_professional_by_id
+from functions import get_users_by_prof_id, delete_professional_by_id, get_role
 from database import get_db, engine
-from sqlalchemy.orm import Session, Query
+from sqlalchemy.orm import Session, Query, mapped_column, Mapped
 from sqlalchemy.sql import text
 from sqlalchemy.inspection import inspect
-
+from sqlalchemy import Integer, String
+from typing import ClassVar
 # Create database tables
 Base.metadata.create_all(bind=engine)
 
@@ -83,7 +84,7 @@ async def read_daily_meal_logs(db: Session = Depends(get_db)):
 @router.get("/users", response_model=list[dict])
 async def read_users(db: Session = Depends(get_db)):
     users = db.query(User).all()
-    return [{"userid": user.userid, "name": user.name, "email": user.email, "country": user.country} for user in users]
+    return [{"userid": user.userid, "name": user.name, "email": user.email} for user in users]
 
 # Create User
 @router.post("/users/", response_model=dict)
@@ -184,8 +185,30 @@ async def sort_data(
     response = []
     for item in results:
         # Create a dictionary of column names and their corresponding values
-        item_data = {column.name: getattr(item, column.name) for column in model.__table__.columns}
-        response.append(item_data)
+        #item_data = {column.name: getattr(item, column.name) for column in model.__table__.columns}
+        if (model == Subscription):
+            item_data = {"subscriptionid": getattr(item, "subscriptionid"), "subscriptiontype": getattr(item, "subscriptiontype"),"billingcycle": getattr(item, "billingcycle")}
+            response.append(item_data)
+        elif (model == Professional):
+            item_data = {"professionalid": getattr(item, "professionalid"), "name": getattr(item, "name"),"email": getattr(item, "email"),"maxseats": getattr(item, "maxseats"),"currentseats": getattr(item, "currentseats"),"subscriptionid": getattr(item, "subscriptionid")}
+            response.append(item_data)
+        elif (model == User):
+            item_data = {"userid": getattr(item, "userid"), "name": getattr(item, "name"),"email": getattr(item, "email")}
+            response.append(item_data)
+        elif (model == DailyMealLog):
+            item_data = {"meallogid": getattr(item, "meallogid"), "userid": getattr(item, "userid"),"fooditemid": getattr(item, "fooditemid"),"datelogged": getattr(item, "datelogged")}
+            response.append(item_data)
+        elif (model == Metrics):
+            item_data = {"metricsid": getattr(item, "metricsid"), "inputtokenusage": getattr(item, "inputtokenusage"), "outputtokenusage": getattr(item, "outputtokenusage"),"userid": getattr(item, "userid")}
+            response.append(item_data)
+    
 
-    #return [{"professionalid": result.professionalid, "name": result.name, "email": result.email, "maxseats":result.maxseats, "currentseats":result.currentseats,"subscriptionid":result.subscriptionid} for result in results]
     return response
+
+@router.get("/{userId}", response_model=dict)
+async def get_users(userId: str, db: Session = Depends(get_db)):
+    # Perform any necessary string operations on userId
+    role = get_role(db, userId)  # Assume get_role accepts a string ID
+    db.role = role
+    print(db.role)
+    return {"role":role}
