@@ -205,8 +205,10 @@ async def sort_data(
 
     return response
 
-@router.get("/${userId}", response_model=list[dict])
-async def get_users(userId: int, db: Session = Depends(get_db)):
-    role = get_role(db, userId)
-    return {"role": role}
-
+@router.get("/{userId}", response_model=dict)
+async def get_users(userId: str, db: Session = Depends(get_db)):
+    # Perform any necessary string operations on userId
+    role = get_role(db, userId)  # Assume get_role accepts a string ID
+    db.role = role
+    print(db.role)
+    return {"role":role}
