@@ -86,3 +86,14 @@ async def delete_daily_meal_log(meallogid: int, db: Session = Depends(get_db)):
         "fooditemid": daily_meal_log.fooditemid,
         "datelogged": daily_meal_log.datelogged
     }
+    
+# Get Daily Meal Log by ID
+@router.get("/daily_meal_logs/{meallogid}")
+async def get_daily_meal_log(meallogid: int, db: Session = Depends(get_db)):
+    daily_meal_log = db.query(DailyMealLog).filter(DailyMealLog.meallogid == meallogid).first()
+    return {
+        "meallogid": daily_meal_log.meallogid,
+        "userid": daily_meal_log.userid,
+        "fooditemid": daily_meal_log.fooditemid,
+        "datelogged": daily_meal_log.datelogged
+    }

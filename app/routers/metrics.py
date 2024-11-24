@@ -51,3 +51,8 @@ async def delete_metrics(metricsid: int, db: Session = Depends(get_db)):
     db.commit()
     return {"metricsid": metrics.metricsid, "inputtokenusage": metrics.inputtokenusage, "outputtokenusage": metrics.outputtokenusage, "userid": metrics.userid}
 
+# Get Metrics by ID
+@router.get("/metrics/{metricsid}")
+async def get_metrics(metricsid: int, db: Session = Depends(get_db)):
+    metrics = db.query(Metrics).filter(Metrics.metricsid == metricsid).first()
+    return {"metricsid": metrics.metricsid, "inputtokenusage": metrics.inputtokenusage, "outputtokenusage": metrics.outputtokenusage, "userid": metrics.userid}

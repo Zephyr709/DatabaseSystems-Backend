@@ -55,3 +55,8 @@ async def delete_subscription(subscriptionid: int, db: Session = Depends(get_db)
     db.commit()
     return {"subscriptionid": subscription.subscriptionid, "subscriptiontype": subscription.subscriptiontype, "billingcycle": subscription.billingcycle}
 
+# Get subscription by ID
+@router.get("/subscriptions/{subscriptionid}")
+async def get_subscription(subscriptionid: int, db: Session = Depends(get_db)):
+    subscription = db.query(Subscription).filter(Subscription.subscriptionid == subscriptionid).first()
+    return {"subscriptionid": subscription.subscriptionid, "subscriptiontype": subscription.subscriptiontype, "billingcycle": subscription.billingcycle}
