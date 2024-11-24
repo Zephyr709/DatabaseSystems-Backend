@@ -1,7 +1,8 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-DATABASE_URL = ... #replace with database url with password
+DATABASE_URL = "postgresql://postgres.vsmxzziwkpagxuphtwgw:databasesystems4754@aws-0-us-east-1.pooler.supabase.com:6543/postgres"
+
 
 engine = create_engine(DATABASE_URL)
 
