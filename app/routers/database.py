@@ -1,7 +1,7 @@
 from fastapi import FastAPI, APIRouter, Depends, HTTPException
 from models import Item, Subscription, Professional, User, Base, Metrics, DailyMealLog
-from functions import get_users_by_prof_id, delete_professional_by_id, get_role
-from database import get_db, engine
+from functions import get_users_by_prof_id, delete_professional_by_id, get_role_from_db
+from database import get_db, engine, setRole, getRole
 from sqlalchemy.orm import Session, Query, mapped_column, Mapped
 from sqlalchemy.sql import text
 from sqlalchemy.inspection import inspect
@@ -76,10 +76,9 @@ async def sort_data(
 
     return response
 
-@router.get("/{userId}", response_model=dict)
+@router.get("/login/{userId}", response_model=dict)
 async def get_users(userId: str, db: Session = Depends(get_db)):
     # Perform any necessary string operations on userId
-    role = get_role(db, userId)  # Assume get_role accepts a string ID
-    db.role = role
-    print(db.role)
+    role = get_role_from_db(db, userId)  # Assume get_role accepts a string ID
+    setRole(role)
     return {"role":role}

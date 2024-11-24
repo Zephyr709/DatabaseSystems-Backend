@@ -5,6 +5,15 @@ DATABASE_URL = "postgresql://postgres.vsmxzziwkpagxuphtwgw:databasesystems4754@a
 
 engine = create_engine(DATABASE_URL)
 
+role = ""
+
+def setRole(newRole):
+    global role 
+    role = newRole
+def getRole():
+    return role
+
+
 # Create a session maker
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
