@@ -13,7 +13,7 @@ Base.metadata.create_all(bind=engine)
 
 router = APIRouter()
 # Create Professional
-@router.post("/professional/", response_model=dict)
+@router.post("/professional", response_model=dict)
 async def create_professional(name: str, email: str, maxseats: int, currentseats: int, subscriptionid: int, db: Session = Depends(get_db)):
     new_professional = Professional(
         name=name,

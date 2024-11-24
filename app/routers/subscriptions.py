@@ -14,7 +14,7 @@ Base.metadata.create_all(bind=engine)
 router = APIRouter()
 
 # Create Subscription
-@router.post("/subscriptions/", response_model=dict)
+@router.post("/subscriptions", response_model=dict)
 async def create_subscription(subscriptiontype: str, billingcycle: str, startdate: str, renewaldate: str, paymentstatus: str, db: Session = Depends(get_db)):
     new_subscription = Subscription(
         subscriptiontype=subscriptiontype,

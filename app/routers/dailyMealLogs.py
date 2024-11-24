@@ -15,7 +15,7 @@ router = APIRouter()
 
 
 # Create Daily Meal Log
-@router.post("/daily_meal_logs/", response_model=dict)
+@router.post("/daily_meal_logs", response_model=dict)
 async def create_daily_meal_log(
     userid: int,
     fooditemid: int,

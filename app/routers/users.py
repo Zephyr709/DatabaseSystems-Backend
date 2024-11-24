@@ -14,7 +14,7 @@ Base.metadata.create_all(bind=engine)
 router = APIRouter()
 
 # Create User
-@router.post("/users/", response_model=dict)
+@router.post("/users", response_model=dict)
 async def create_user(
     name: str,
     email: str,
