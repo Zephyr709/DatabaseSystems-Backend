@@ -1,7 +1,7 @@
 from fastapi import FastAPI, APIRouter, Depends, HTTPException
 from models import Item, Subscription, Professional, User, Base, Metrics, DailyMealLog
-from functions import get_users_by_prof_id, delete_professional_by_id, get_role
-from database import get_db, engine
+from functions import get_users_by_prof_id, delete_professional_by_id
+from database import get_db, engine, getRole
 from sqlalchemy.orm import Session, Query, mapped_column, Mapped
 from sqlalchemy.sql import text
 from sqlalchemy.inspection import inspect
@@ -49,11 +49,23 @@ async def update_professional(professionalid: int, name: str, email: str, maxsea
 # Delete Professional
 @router.delete("/professionals/{professionalid}", response_model=dict)
 async def delete_professional(professionalid: int, db: Session = Depends(get_db)):
-    professional = db.query(Professional).filter(Professional.professionalid == professionalid).first()
-    db.delete(professional)
-    
-    db.commit()
-    return {"professionalid": professional.professionalid, "name": professional.name, "email": professional.email, "maxseats": professional.maxseats, "currentseats": professional.currentseats, "subscriptionid": professional.subscriptionid}
+    if getRole() == "it_admin":
+        professional = db.query(Professional).filter(Professional.professionalid == professionalid).first()
+        if professional:
+            db.delete(professional)
+            db.commit()
+            return {
+                "professionalid": professional.professionalid,
+                "name": professional.name,
+                "email": professional.email,
+                "maxseats": professional.maxseats,
+                "currentseats": professional.currentseats,
+                "subscriptionid": professional.subscriptionid,
+            }
+        else:
+            raise HTTPException(status_code=404, detail="Professional not found")
+    else:
+        raise HTTPException(status_code=403, detail="Access Denied")  # 403 Forbidden
 
 # Read Users by Professional ID
 @router.get("/professionals/{prof_id}/users")

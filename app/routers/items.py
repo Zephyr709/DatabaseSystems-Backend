@@ -1,6 +1,6 @@
 from fastapi import FastAPI, APIRouter, Depends, HTTPException
 from models import Item, Subscription, Professional, User, Base, Metrics, DailyMealLog
-from functions import get_users_by_prof_id, delete_professional_by_id, get_role
+from functions import get_users_by_prof_id, delete_professional_by_id
 from database import get_db, engine
 from sqlalchemy.orm import Session, Query, mapped_column, Mapped
 from sqlalchemy.sql import text
