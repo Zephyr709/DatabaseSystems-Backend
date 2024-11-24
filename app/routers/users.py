@@ -97,3 +97,9 @@ async def delete_user(userid: int, db: Session = Depends(get_db)):
     db.delete(user)
     db.commit()
     return {"userid": user.userid, "name": user.name, "email": user.email}
+
+# Read User by ID
+@router.get("/users/{userid}")
+async def get_user(userid: int, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.userid == userid).first()
+    return {"userid": user.userid, "name": user.name, "email": user.email}

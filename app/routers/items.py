@@ -44,3 +44,9 @@ async def update_item(item_id: int, name: str, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(item)
     return {"id": item.id, "name": item.name}
+
+# Get Item by ID
+@router.get("/items/{item_id}")
+async def get_item(item_id: int, db: Session = Depends(get_db)):
+    item = db.query(Item).filter(Item.id == item_id).first()
+    return {"id": item.id, "name": item.name}
