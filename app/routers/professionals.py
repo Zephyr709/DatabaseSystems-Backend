@@ -69,8 +69,22 @@ async def delete_professional(professionalid: int, db: Session = Depends(get_db)
     else:
         raise HTTPException(status_code=403, detail="Access Denied")  # 403 Forbidden
 
+# Get Professional by ID
+@router.get("/professionals/{professionalid}")
+async def get_professional(professionalid: int, db: Session = Depends(get_db)):
+    professional = db.query(Professional).filter(Professional.professionalid == professionalid).first()
+    return {
+        "professionalid": professional.professionalid,
+        "name": professional.name,
+        "email": professional.email,
+        "maxseats": professional.maxseats,
+        "currentseats": professional.currentseats,
+        "subscriptionid": professional.subscriptionid,
+    }
+
+
 # Read Users by Professional ID
 @router.get("/professionals/{prof_id}/users")
-def get_users(prof_id: int, db: Session = Depends(get_db)):
+async def get_users(prof_id: int, db: Session = Depends(get_db)):
     users = get_users_by_prof_id(db, prof_id)
     return {"users": users}
