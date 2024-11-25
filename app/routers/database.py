@@ -2,11 +2,12 @@ from fastapi import FastAPI, APIRouter, Depends, HTTPException
 from models import Item, Subscription, Professional, User, Base, Metrics, DailyMealLog
 from functions import get_users_by_prof_id, delete_professional_by_id, get_role
 from database import get_db, engine
-from sqlalchemy.orm import Session, Query, mapped_column, Mapped
+from sqlalchemy.orm import Session, Query, Mapped
 from sqlalchemy.sql import text
 from sqlalchemy.inspection import inspect
 from sqlalchemy import Integer, String
 from typing import ClassVar
+from functions import search_table_column_row
 # Create database tables
 Base.metadata.create_all(bind=engine)
 
@@ -83,3 +84,16 @@ async def get_users(userId: str, db: Session = Depends(get_db)):
     db.role = role
     print(db.role)
     return {"role":role}
+
+
+#Added for search button
+
+@router.get("/search")
+async def sort_data(
+    table: str,
+    column: str,
+    searchQ: str,
+    db: Session = Depends(get_db)
+):
+    items = search_table_column_row(db, table, column, searchQ)
+    return items

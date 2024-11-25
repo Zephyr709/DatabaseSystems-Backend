@@ -40,3 +40,41 @@ def get_role(db: Session, user_id: int):
     result = db.execute(sql, {"user_id": user_id}).fetchone()
     # Return the role name if found, otherwise return None
     return result[0] if result else None
+
+
+
+#added for search button
+
+def search_table_column_row(db: Session, table, column, searchQ):
+    
+    if table == 'Users':
+        responseFormat = text('userid BIGINT, country TEXT, city TEXT, height NUMERIC(5,2), gender TEXT, weight NUMERIC(5,2), birthdate TIMESTAMP WITH TIME ZONE, email TEXT, name TEXT, nutritiongoal TEXT, macrosplit TEXT, totallogins INT, lastlogin TIMESTAMP, createdat TIMESTAMP, subscriptionid BIGINT, professionalid BIGINT')
+
+    elif table == 'Professional':
+        responseFormat = text('professionalid BIGINT, name TEXT, email TEXT, maxseats INT, currentseats INT, subscriptionid BIGINT')
+
+    elif table == 'Subscription':
+        responseFormat = text('subscriptionid BIGINT, subscriptiontype TEXT, billingcycle TEXT, startdate TIMESTAMP WITH TIME ZONE, renewaldate TIMESTAMP WITH TIME ZONE, paymentstatus TEXT')
+
+    elif table == 'DailyMealLog':
+        responseFormat = text('mealLogId BIGINT, userid BIGINT, foodItemId INT, dateLogged TEXT')
+    
+    elif table == 'Metrics':
+        responseFormat = text('metricsid INT, inputtokenusage INT, outputtokenusage INT, userid INT')
+
+    table = table.lower()
+
+    sql = text(f"""
+        SELECT * FROM search_table_col_row(:table_name, :column_name, :search_query) 
+        AS result({responseFormat})
+    """)
+    result = db.execute(sql, {
+            "table_name": table,
+            "column_name": column,
+            "search_query": searchQ
+        }).fetchall()
+    
+    # Convert each row into a dictionary using _asdict() method
+    users = [row._asdict() for row in result]
+    
+    return users
