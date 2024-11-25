@@ -49,10 +49,14 @@ async def read_daily_meal_logs(db: Session = Depends(get_db)):
     ]
 
 # Update Daily Meal Log
-@router.put("/daily_meal_logs/{meallogid}", response_model=dict)
-async def update_daily_meal_log(meallogid: int, request: Request, db: Session = Depends(get_db)):
+@router.put("/daily_meal_logs/{meallogid}/{userid}/{fooditemid}", response_model=dict)
+async def update_daily_meal_log(meallogid: int, userid: int, fooditemid: int, request: Request, db: Session = Depends(get_db)):
     data = await request.json()
-    daily_meal_log = db.query(DailyMealLog).filter(DailyMealLog.meallogid == meallogid).first()
+    daily_meal_log = db.query(DailyMealLog).filter(
+        DailyMealLog.meallogid == meallogid,
+        DailyMealLog.userid == userid,
+        DailyMealLog.fooditemid == fooditemid
+    ).first()
     daily_meal_log.userid = data['userid']
     daily_meal_log.fooditemid = data['fooditemid']
     daily_meal_log.datelogged = data['datelogged']
@@ -66,9 +70,13 @@ async def update_daily_meal_log(meallogid: int, request: Request, db: Session = 
     }
     
 # Delete Daily Meal Log
-@router.delete("/daily_meal_logs/{meallogid}", response_model=dict)
-async def delete_daily_meal_log(meallogid: int, db: Session = Depends(get_db)):
-    daily_meal_log = db.query(DailyMealLog).filter(DailyMealLog.meallogid == meallogid).first()
+@router.delete("/daily_meal_logs/{meallogid}/{userid}/{fooditemid}", response_model=dict)
+async def delete_daily_meal_log(meallogid: int, userid: int, fooditemid: int, db: Session = Depends(get_db)):
+    daily_meal_log = db.query(DailyMealLog).filter(
+        DailyMealLog.meallogid == meallogid,
+        DailyMealLog.userid == userid,
+        DailyMealLog.fooditemid == fooditemid
+    ).first()
     db.delete(daily_meal_log)
     db.commit()
     return {
@@ -79,9 +87,13 @@ async def delete_daily_meal_log(meallogid: int, db: Session = Depends(get_db)):
     }
     
 # Get Daily Meal Log by ID
-@router.get("/daily_meal_logs/{meallogid}")
-async def get_daily_meal_log(meallogid: int, db: Session = Depends(get_db)):
-    daily_meal_log = db.query(DailyMealLog).filter(DailyMealLog.meallogid == meallogid).first()
+@router.get("/daily_meal_logs/{meallogid}/{userid}/{fooditemid}")
+async def get_daily_meal_log(meallogid: int, userid: int, fooditemid: int, db: Session = Depends(get_db)):
+    daily_meal_log = db.query(DailyMealLog).filter(
+        DailyMealLog.meallogid == meallogid,
+        DailyMealLog.userid == userid,
+        DailyMealLog.fooditemid == fooditemid
+    ).first()
     return {
         "meallogid": daily_meal_log.meallogid,
         "userid": daily_meal_log.userid,
