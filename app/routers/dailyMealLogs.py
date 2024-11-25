@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, Depends, HTTPException
+from fastapi import FastAPI, APIRouter, Depends, HTTPException, Request
 from models import Item, Subscription, Professional, User, Base, Metrics, DailyMealLog
 from functions import get_users_by_prof_id, delete_professional_by_id
 from database import get_db, engine
@@ -16,16 +16,12 @@ router = APIRouter()
 
 # Create Daily Meal Log
 @router.post("/daily_meal_logs", response_model=dict)
-async def create_daily_meal_log(
-    userid: int,
-    fooditemid: int,
-    datelogged: str,
-    db: Session = Depends(get_db)
-):
+async def create_daily_meal_log(request: Request, db: Session = Depends(get_db)):
+    data = await request.json()
     new_daily_meal_log = DailyMealLog(
-        userid=userid,
-        fooditemid=fooditemid,
-        datelogged=datelogged
+        userid=data['userid'],
+        fooditemid=data['fooditemid'],
+        datelogged=data['datelogged']
     )
     db.add(new_daily_meal_log)
     db.commit()
@@ -54,17 +50,12 @@ async def read_daily_meal_logs(db: Session = Depends(get_db)):
 
 # Update Daily Meal Log
 @router.put("/daily_meal_logs/{meallogid}", response_model=dict)
-async def update_daily_meal_log(
-    meallogid: int,
-    userid: int,
-    fooditemid: int,
-    datelogged: str,
-    db: Session = Depends(get_db)
-):
+async def update_daily_meal_log(meallogid: int, request: Request, db: Session = Depends(get_db)):
+    data = await request.json()
     daily_meal_log = db.query(DailyMealLog).filter(DailyMealLog.meallogid == meallogid).first()
-    daily_meal_log.userid = userid
-    daily_meal_log.fooditemid = fooditemid
-    daily_meal_log.datelogged = datelogged
+    daily_meal_log.userid = data['userid']
+    daily_meal_log.fooditemid = data['fooditemid']
+    daily_meal_log.datelogged = data['datelogged']
     db.commit()
     db.refresh(daily_meal_log)
     return {

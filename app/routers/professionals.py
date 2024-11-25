@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, Depends, HTTPException
+from fastapi import FastAPI, APIRouter, Depends, HTTPException, Request
 from models import Item, Subscription, Professional, User, Base, Metrics, DailyMealLog
 from functions import get_users_by_prof_id, delete_professional_by_id
 from database import get_db, engine, getRole
@@ -14,13 +14,14 @@ Base.metadata.create_all(bind=engine)
 router = APIRouter()
 # Create Professional
 @router.post("/professional", response_model=dict)
-async def create_professional(name: str, email: str, maxseats: int, currentseats: int, subscriptionid: int, db: Session = Depends(get_db)):
+async def create_professional(request: Request, db: Session = Depends(get_db)):
+    data = await request.json()
     new_professional = Professional(
-        name=name,
-        email=email,
-        maxseats=maxseats,
-        currentseats=currentseats,
-        subscriptionid=subscriptionid
+        name=data['name'],
+        email=data['email'],
+        maxseats=data['maxseats'],
+        currentseats=data['currentseats'],
+        subscriptionid=data['subscriptionid']
     )
     db.add(new_professional)
     db.commit()
@@ -35,13 +36,14 @@ async def read_professionals(db: Session = Depends(get_db)):
 
 # Update Professional
 @router.put("/professionals/{professionalid}", response_model=dict)
-async def update_professional(professionalid: int, name: str, email: str, maxseats: int, currentseats: int, subscriptionid: int, db: Session = Depends(get_db)):
+async def update_professional(professionalid: int, request: Request, db: Session = Depends(get_db)):
+    data = await request.json()
     professional = db.query(Professional).filter(Professional.professionalid == professionalid).first()
-    professional.name = name
-    professional.email = email
-    professional.maxseats = maxseats
-    professional.currentseats = currentseats
-    professional.subscriptionid = subscriptionid
+    professional.name = data['name']
+    professional.email = data['email']
+    professional.maxseats = data['maxseats']
+    professional.currentseats = data['currentseats']
+    professional.subscriptionid = data['subscriptionid']
     db.commit()
     db.refresh(professional)
     return {"professionalid": professional.professionalid, "name": professional.name, "email": professional.email, "maxseats": professional.maxseats, "currentseats": professional.currentseats, "subscriptionid": professional.subscriptionid}
