@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, Depends, HTTPException
+from fastapi import FastAPI, APIRouter, Depends, HTTPException, Request
 from models import Item, Subscription, Professional, User, Base, Metrics, DailyMealLog
 from functions import get_users_by_prof_id, delete_professional_by_id
 from database import get_db, engine
@@ -21,11 +21,12 @@ async def read_metrics(db: Session = Depends(get_db)):
 
 # Create Metrics
 @router.post("/metrics", response_model=dict)
-async def create_metrics(inputtokenusage: int, outputtokenusage: int, userid: int, db: Session = Depends(get_db)):
+async def create_metrics(request: Request, db: Session = Depends(get_db)):
+    data = await request.json()
     new_metrics = Metrics(
-        inputtokenusage=inputtokenusage,
-        outputtokenusage=outputtokenusage,
-        userid=userid
+        inputtokenusage=data['inputtokenusage'],
+        outputtokenusage=data['outputtokenusage'],
+        userid=data['userid']
     )
     db.add(new_metrics)
     db.commit()
@@ -34,11 +35,12 @@ async def create_metrics(inputtokenusage: int, outputtokenusage: int, userid: in
 
 # Update Metrics
 @router.put("/metrics/{metricsid}", response_model=dict)
-async def update_metrics(metricsid: int, inputtokenusage: int, outputtokenusage: int, userid: int, db: Session = Depends(get_db)):
+async def update_metrics(metricsid: int, request: Request, db: Session = Depends(get_db)):
+    data = await request.json()
     metrics = db.query(Metrics).filter(Metrics.metricsid == metricsid).first()
-    metrics.inputtokenusage = inputtokenusage
-    metrics.outputtokenusage = outputtokenusage
-    metrics.userid = userid
+    metrics.inputtokenusage = data['inputtokenusage']
+    metrics.outputtokenusage = data['outputtokenusage']
+    metrics.userid = data['userid']
     db.commit()
     db.refresh(metrics)
     return {"metricsid": metrics.metricsid, "inputtokenusage": metrics.inputtokenusage, "outputtokenusage": metrics.outputtokenusage, "userid": metrics.userid}

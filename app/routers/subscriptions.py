@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, Depends, HTTPException
+from fastapi import FastAPI, APIRouter, Depends, HTTPException, Request
 from models import Item, Subscription, Professional, User, Base, Metrics, DailyMealLog
 from functions import get_users_by_prof_id, delete_professional_by_id
 from database import get_db, engine
@@ -15,13 +15,14 @@ router = APIRouter()
 
 # Create Subscription
 @router.post("/subscriptions", response_model=dict)
-async def create_subscription(subscriptiontype: str, billingcycle: str, startdate: str, renewaldate: str, paymentstatus: str, db: Session = Depends(get_db)):
+async def create_subscription(request: Request, db: Session = Depends(get_db)):
+    data = await request.json()
     new_subscription = Subscription(
-        subscriptiontype=subscriptiontype,
-        billingcycle=billingcycle,
-        startdate=startdate,
-        renewaldate=renewaldate,
-        paymentstatus=paymentstatus
+        subscriptiontype=data['subscriptiontype'],
+        billingcycle=data['billingcycle'],
+        startdate=data['startdate'],
+        renewaldate=data['renewaldate'],
+        paymentstatus=data['paymentstatus']
     )
     db.add(new_subscription)
     db.commit()
@@ -36,13 +37,14 @@ async def read_subscriptions(db: Session = Depends(get_db)):
 
 # Update Subscription
 @router.put("/subscriptions/{subscriptionid}", response_model=dict)
-async def update_subscription(subscriptionid: int, subscriptiontype: str, billingcycle: str, startdate: str, renewaldate: str, paymentstatus: str, db: Session = Depends(get_db)):
+async def update_subscription(subscriptionid: int, request: Request, db: Session = Depends(get_db)):
+    data = await request.json()
     subscription = db.query(Subscription).filter(Subscription.subscriptionid == subscriptionid).first()
-    subscription.subscriptiontype = subscriptiontype
-    subscription.billingcycle = billingcycle
-    subscription.startdate = startdate
-    subscription.renewaldate = renewaldate
-    subscription.paymentstatus = paymentstatus
+    subscription.subscriptiontype = data['subscriptiontype']
+    subscription.billingcycle = data['billingcycle']
+    subscription.startdate = data['startdate']
+    subscription.renewaldate = data['renewaldate']
+    subscription.paymentstatus = data['paymentstatus']
     db.commit()
     db.refresh(subscription)
     return {"subscriptionid": subscription.subscriptionid, "subscriptiontype": subscription.subscriptiontype, "billingcycle": subscription.billingcycle}

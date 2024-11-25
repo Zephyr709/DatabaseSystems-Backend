@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, Depends, HTTPException
+from fastapi import FastAPI, APIRouter, Depends, HTTPException, Request
 from models import Item, Subscription, Professional, User, Base, Metrics, DailyMealLog
 from functions import get_users_by_prof_id, delete_professional_by_id
 from database import get_db, engine
@@ -21,8 +21,9 @@ async def read_items(db: Session = Depends(get_db)):
 
 # Create Item
 @router.post("/items", response_model=dict)
-async def create_item(name: str, db: Session = Depends(get_db)):
-    new_item = Item(name=name)
+async def create_item(request: Request, db: Session = Depends(get_db)):
+    data = await request.json()
+    new_item = Item(name=data['name'])
     db.add(new_item)
     db.commit()
     db.refresh(new_item)
@@ -38,9 +39,10 @@ async def delete_item(item_id: int, db: Session = Depends(get_db)):
 
 # Update Item
 @router.put("/items/{item_id}", response_model=dict)
-async def update_item(item_id: int, name: str, db: Session = Depends(get_db)):
+async def update_item(item_id: int, request: Request, db: Session = Depends(get_db)):
+    data = await request.json()
     item = db.query(Item).filter(Item.id == item_id).first()
-    item.name = name
+    item.name = data['name']
     db.commit()
     db.refresh(item)
     return {"id": item.id, "name": item.name}
