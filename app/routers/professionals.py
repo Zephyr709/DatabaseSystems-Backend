@@ -87,4 +87,4 @@ async def get_professional(professionalid: int, db: Session = Depends(get_db)):
 @router.get("/professionals/{prof_id}/users")
 async def get_users(prof_id: int, db: Session = Depends(get_db)):
     users = get_users_by_prof_id(db, prof_id)
-    return {"users": users}
+    return users
