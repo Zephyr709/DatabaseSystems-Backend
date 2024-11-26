@@ -2,7 +2,7 @@ from fastapi import FastAPI, APIRouter, Depends, HTTPException, Request
 from models import Item, Subscription, Professional, User, Base, Metrics, DailyMealLog, DailyMealLogView
 from functions import get_users_by_prof_id, delete_professional_by_id
 from database import get_db, engine, getRole
-from sqlalchemy.orm import Session, Query, mapped_column, Mapped
+from sqlalchemy.orm import Session, Query, Mapped
 from sqlalchemy.sql import text
 from sqlalchemy.inspection import inspect
 from sqlalchemy import Integer, String
@@ -64,6 +64,7 @@ async def update_daily_meal_log(meallogid: int, userid: int, fooditemid: int, re
             DailyMealLog.userid == userid,
             DailyMealLog.fooditemid == fooditemid
         ).first()
+        daily_meal_log.meallogid = data['meallogid']
         daily_meal_log.userid = data['userid']
         daily_meal_log.fooditemid = data['fooditemid']
         daily_meal_log.datelogged = data['datelogged']
@@ -73,7 +74,7 @@ async def update_daily_meal_log(meallogid: int, userid: int, fooditemid: int, re
             "meallogid": daily_meal_log.meallogid,
             "userid": daily_meal_log.userid,
             "fooditemid": daily_meal_log.fooditemid,
-            "datelogged": daily_meal_log.datelogged
+            "datelogged": daily_meal_log.datelogged,
         }
     else:
         raise HTTPException(status_code=403, detail="Access Denied")  # 403 Forbidden
