@@ -2,7 +2,7 @@ from fastapi import FastAPI, APIRouter, Depends, HTTPException, Request
 from models import Item, Subscription, Professional, User, Base, Metrics, DailyMealLog
 from functions import get_users_by_prof_id, delete_professional_by_id
 from database import get_db, engine, getRole
-from sqlalchemy.orm import Session, Query, mapped_column, Mapped
+from sqlalchemy.orm import Session, Query, Mapped
 from sqlalchemy.sql import text
 from sqlalchemy.inspection import inspect
 from sqlalchemy import Integer, String
@@ -45,9 +45,13 @@ async def update_subscription(subscriptionid: int, request: Request, db: Session
         subscription = db.query(Subscription).filter(Subscription.subscriptionid == subscriptionid).first()
         subscription.subscriptiontype = data['subscriptiontype']
         subscription.billingcycle = data['billingcycle']
-        subscription.startdate = data['startdate']
-        subscription.renewaldate = data['renewaldate']
-        subscription.paymentstatus = data['paymentstatus']
+
+        #These are commented out because they aren't in our menu for 
+        #itmes that can be edited so backend screams in pain
+        #subscription.startdate = data['startdate']         
+        #subscription.renewaldate = data['renewaldate']
+        #subscription.paymentstatus = data['paymentstatus']
+        
         db.commit()
         db.refresh(subscription)
         return {"subscriptionid": subscription.subscriptionid, "subscriptiontype": subscription.subscriptiontype, "billingcycle": subscription.billingcycle}
