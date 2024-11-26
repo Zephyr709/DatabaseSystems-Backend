@@ -13,7 +13,7 @@ Base.metadata.create_all(bind=engine)
 
 router = APIRouter()
 # Create Professional
-@router.post("/professional", response_model=dict)
+@router.post("/professionals", response_model=dict)
 async def create_professional(request: Request, db: Session = Depends(get_db)):
     if getRole() == "it_admin":
         data = await request.json()
@@ -21,7 +21,7 @@ async def create_professional(request: Request, db: Session = Depends(get_db)):
             name=data['name'],
             email=data['email'],
             maxseats=data['maxseats'],
-            currentseats=data['currentseats'],
+            currentseats=0,
             subscriptionid=data['subscriptionid']
         )
         db.add(new_professional)
