@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 
-from routers import database, metrics, professionals, subscriptions, users, dailyMealLogs
+from routers import database, metrics, professionals, subscriptions, users, dailyMealLogs, fooditem
 app = FastAPI()
 
 
@@ -18,6 +18,7 @@ app.include_router(professionals.router)
 app.include_router(subscriptions.router)
 app.include_router(users.router)
 app.include_router(dailyMealLogs.router)
+app.include_router(fooditem.router)
 
 
 @app.get("/")

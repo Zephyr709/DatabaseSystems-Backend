@@ -96,6 +96,15 @@ class FoodItem(Base):
     __tablename__ = "fooditem"
     
     fooditemid = Column(BigInteger, primary_key=True)
+    name = Column(Text) 
+    calories = Column(Numeric(5, 2))
+    protein = Column(Numeric(5, 2))
+    carbs = Column(Numeric(5, 2))
+    fats = Column(Numeric(5, 2))
+    fiber = Column(Numeric(5, 2))
+    sugar = Column(Numeric(5, 2))
+    sodium = Column(Numeric(5, 2)) 
+    cholesterol = Column(Numeric(5, 2))
     daily_meal_logs = relationship("DailyMealLog", back_populates="food_item")
 
 
