@@ -30,8 +30,8 @@ class UserCreate(BaseModel):
 
 # Create User
 @router.post("/users", response_model=dict)
-async def create_user(request: Request, db: Session = Depends(get_db)):
-    if getRole == "it_admin":
+async def create_user(request: Request, db: Session = Depends(get_db)):   
+    if getRole() == "it_admin":
         body = await request.json()
         new_user = User(
             name=body["name"],
