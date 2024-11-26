@@ -15,18 +15,21 @@ router = APIRouter()
 # Create Professional
 @router.post("/professional", response_model=dict)
 async def create_professional(request: Request, db: Session = Depends(get_db)):
-    data = await request.json()
-    new_professional = Professional(
-        name=data['name'],
-        email=data['email'],
-        maxseats=data['maxseats'],
-        currentseats=data['currentseats'],
-        subscriptionid=data['subscriptionid']
-    )
-    db.add(new_professional)
-    db.commit()
-    db.refresh(new_professional)
-    return {"professionalid": new_professional.professionalid, "name": new_professional.name, "email": new_professional.email}
+    if getRole() == "it_admin":
+        data = await request.json()
+        new_professional = Professional(
+            name=data['name'],
+            email=data['email'],
+            maxseats=data['maxseats'],
+            currentseats=data['currentseats'],
+            subscriptionid=data['subscriptionid']
+        )
+        db.add(new_professional)
+        db.commit()
+        db.refresh(new_professional)
+        return {"professionalid": new_professional.professionalid, "name": new_professional.name, "email": new_professional.email}
+    else:
+        raise HTTPException(status_code=403, detail="Access Denied")  # 403 Forbidden
 
 # Read Professionals
 @router.get("/professionals", response_model=list[dict])
@@ -37,16 +40,19 @@ async def read_professionals(db: Session = Depends(get_db)):
 # Update Professional
 @router.put("/professionals/{professionalid}", response_model=dict)
 async def update_professional(professionalid: int, request: Request, db: Session = Depends(get_db)):
-    data = await request.json()
-    professional = db.query(Professional).filter(Professional.professionalid == professionalid).first()
-    professional.name = data['name']
-    professional.email = data['email']
-    professional.maxseats = data['maxseats']
-    professional.currentseats = data['currentseats']
-    professional.subscriptionid = data['subscriptionid']
-    db.commit()
-    db.refresh(professional)
-    return {"professionalid": professional.professionalid, "name": professional.name, "email": professional.email, "maxseats": professional.maxseats, "currentseats": professional.currentseats, "subscriptionid": professional.subscriptionid}
+    if getRole() == "it_admin":
+        data = await request.json()
+        professional = db.query(Professional).filter(Professional.professionalid == professionalid).first()
+        professional.name = data['name']
+        professional.email = data['email']
+        professional.maxseats = data['maxseats']
+        professional.currentseats = data['currentseats']
+        professional.subscriptionid = data['subscriptionid']
+        db.commit()
+        db.refresh(professional)
+        return {"professionalid": professional.professionalid, "name": professional.name, "email": professional.email, "maxseats": professional.maxseats, "currentseats": professional.currentseats, "subscriptionid": professional.subscriptionid}
+    else:
+        raise HTTPException(status_code=403, detail="Access Denied")  # 403 Forbidden
 
 # Delete Professional
 @router.delete("/professionals/{professionalid}", response_model=dict)
@@ -69,8 +75,22 @@ async def delete_professional(professionalid: int, db: Session = Depends(get_db)
     else:
         raise HTTPException(status_code=403, detail="Access Denied")  # 403 Forbidden
 
+# Get Professional by ID
+@router.get("/professionals/{professionalid}")
+async def get_professional(professionalid: int, db: Session = Depends(get_db)):
+    professional = db.query(Professional).filter(Professional.professionalid == professionalid).first()
+    return {
+        "professionalid": professional.professionalid,
+        "name": professional.name,
+        "email": professional.email,
+        "maxseats": professional.maxseats,
+        "currentseats": professional.currentseats,
+        "subscriptionid": professional.subscriptionid,
+    }
+
+
 # Read Users by Professional ID
 @router.get("/professionals/{prof_id}/users")
-def get_users(prof_id: int, db: Session = Depends(get_db)):
+async def get_users(prof_id: int, db: Session = Depends(get_db)):
     users = get_users_by_prof_id(db, prof_id)
-    return {"users": users}
+    return users
