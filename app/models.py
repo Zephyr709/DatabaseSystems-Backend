@@ -97,3 +97,20 @@ class FoodItem(Base):
     
     fooditemid = Column(BigInteger, primary_key=True)
     daily_meal_logs = relationship("DailyMealLog", back_populates="food_item")
+
+
+class DailyMealLogView(Base):
+    __tablename__ = 'meal_log_view'
+    meallogid = Column(Integer, primary_key=True)
+    userid = Column(Integer)
+    fooditemid = Column(Integer)
+    datelogged = Column(TIMESTAMP(timezone=True))
+    name = Column(Text) 
+    calories = Column(Numeric(5, 2))
+    protein = Column(Numeric(5, 2))
+    carbs = Column(Numeric(5, 2))
+    fats = Column(Numeric(5, 2))
+    fiber = Column(Numeric(5, 2))
+    sugar = Column(Numeric(5, 2))
+    sodium = Column(Numeric(5, 2)) 
+    cholesterol = Column(Numeric(5, 2))

@@ -44,3 +44,13 @@ def get_role_from_db(db: Session, user_id: int):
     result = db.execute(sql, {"user_id": user_id}).fetchone()
     # Return the role name if found, otherwise return None
     return result[0] if result else None
+
+
+#Meal Log view
+def get_meal_view(db: Session):
+    sql = text("SELECT * FROM meal_log_view")
+    result = db.execute(sql).fetall()
+    
+    meals = [row._asdict() for row in result]
+    
+    return meals
