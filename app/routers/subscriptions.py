@@ -28,7 +28,8 @@ async def create_subscription(request: Request, db: Session = Depends(get_db)):
         db.add(new_subscription)
         db.commit()
         db.refresh(new_subscription)
-        return {"subscriptionid": new_subscription.subscriptionid, "subscriptiontype": new_subscription.subscriptiontype, "billingcycle": new_subscription.billingcycle}
+        return {"subscriptionid": new_subscription.subscriptionid, "subscriptiontype": new_subscription.subscriptiontype, 
+                "billingcycle": new_subscription.billingcycle, "startdate":new_subscription.startdate,"renewaldate":new_subscription.renewaldate,"paymentstatus":new_subscription.paymentstatus}
     else:
         raise HTTPException(status_code=403, detail="Access Denied")  # 403 Forbidden
 # Read Subscriptions
