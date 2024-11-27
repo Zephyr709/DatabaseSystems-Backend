@@ -27,7 +27,7 @@ async def create_professional(request: Request, db: Session = Depends(get_db)):
         db.add(new_professional)
         db.commit()
         db.refresh(new_professional)
-        return {"professionalid": new_professional.professionalid, "name": new_professional.name, "email": new_professional.email}
+        return {"professionalid": new_professional.professionalid, "name": new_professional.name, "email": new_professional.email,"maxseats":new_professional.maxseats,"currentseats":new_professional.currentseats,"subscriptionid":new_professional.subscriptionid }
     else:
         raise HTTPException(status_code=403, detail="Access Denied")  # 403 Forbidden
 
