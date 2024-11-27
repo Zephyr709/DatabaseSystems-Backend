@@ -38,6 +38,7 @@ async def create_user(request: Request, db: Session = Depends(get_db)):
             email=body["email"],
             country=body["country"],
             city=body["city"],
+            lastlogin=body["lastlogin"],
             height=body["height"],
             weight=body["weight"],
             gender=body["gender"],
@@ -50,7 +51,22 @@ async def create_user(request: Request, db: Session = Depends(get_db)):
         db.add(new_user)
         db.commit()
         db.refresh(new_user)
-        return {"userid": new_user.userid, "name": new_user.name, "email": new_user.email}
+        return {
+            "userid": new_user.userid,
+            "name": new_user.name,
+            "email": new_user.email,
+            "country": new_user.country,
+            "city": new_user.city,
+            "lastlogin" : new_user.lastlogin,
+            "height": new_user.height,
+            "weight": new_user.weight,
+            "gender": new_user.gender,
+            "birthdate": new_user.birthdate,
+            "nutritiongoal": new_user.nutritiongoal,
+            "macrosplit": new_user.macrosplit,
+            "subscriptionid": new_user.subscriptionid,
+            "professionalid": new_user.professionalid
+        }
     else:
         raise HTTPException(status_code=403, detail="Access Denied")  # 403 Forbidden
         

@@ -17,13 +17,22 @@ router = APIRouter()
 async def create_professional(request: Request, db: Session = Depends(get_db)):
     if getRole() == "it_admin":
         data = await request.json()
-        new_professional = Professional(
+        if data['subscriptionid'] == '':
+            new_professional = Professional(
             name=data['name'],
             email=data['email'],
             maxseats=data['maxseats'],
             currentseats=0,
-            subscriptionid=data['subscriptionid']
+            subscriptionid=None
         )
+        else:
+            new_professional = Professional(
+                name=data['name'],
+                email=data['email'],
+                maxseats=data['maxseats'],
+                currentseats=0,
+                subscriptionid=data['subscriptionid']
+            )
         db.add(new_professional)
         db.commit()
         db.refresh(new_professional)
