@@ -7,6 +7,7 @@ from sqlalchemy.sql import text
 from sqlalchemy.inspection import inspect
 from sqlalchemy import Integer, String
 from typing import ClassVar
+from datetime import datetime
 
 from functions import get_meal_view
 
@@ -23,9 +24,10 @@ async def create_daily_meal_log(request: Request, db: Session = Depends(get_db))
     if getRole() == "it_admin":
         data = await request.json()
         new_daily_meal_log = DailyMealLog(
+            meallogid=data['meallogid'],
             userid=data['userid'],
             fooditemid=data['fooditemid'],
-            datelogged=data['datelogged']
+            datelogged=datetime(year=2000,month=1,day=1)
         )
         db.add(new_daily_meal_log)
         db.commit()
