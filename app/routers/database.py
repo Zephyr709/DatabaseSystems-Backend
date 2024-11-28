@@ -83,6 +83,10 @@ async def get_users(userId: str, db: Session = Depends(get_db)):
     setRole(role)
     return {"role":role}
 
+@router.get("/role", response_model=dict)
+async def get_role(db: Session = Depends(get_db)):
+    return {"role":getRole()}
+
 @router.get("/search")
 async def sort_data(
     table: str,
