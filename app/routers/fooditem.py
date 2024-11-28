@@ -25,16 +25,27 @@ async def update_fooditem(fooditemid: int, request: Request, db: Session = Depen
         food_item = db.query(FoodItem).filter(
             FoodItem.fooditemid == fooditemid
         ).first()
-        food_item.fooditemid = data['fooditemid']
-        food_item.name = data['name']
-        food_item.calories = data['calories']
-        food_item.protein = data['protein']
-        food_item.carbs = data['carbs']
-        food_item.fats = data['fats']
-        food_item.fiber = data['fiber']
-        food_item.sugar = data['sugar']
-        food_item.sodium = data['sodium']
-        food_item.cholesterol = data['cholesterol']
+        if 'name' in data:
+            food_item.name = data['name']
+            food_item.calories = data['calories']
+            food_item.protein = data['protein']
+            food_item.carbs = data['carbs']
+            food_item.fats = data['fats']
+            food_item.fiber = data['fiber']
+            food_item.sugar = data['sugar']
+            food_item.sodium = data['sodium']
+            food_item.cholesterol = data['cholesterol']
+        else:
+            food_item.name = ''
+            food_item.calories = 0
+            food_item.protein = 0
+            food_item.carbs = 0
+            food_item.fats = 0
+            food_item.fiber = 0
+            food_item.sugar = 0
+            food_item.sodium = 0
+            food_item.cholesterol = 0
+
         db.commit()
         db.refresh(food_item)
         return {

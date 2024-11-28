@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String, Text, Numeric, BigInteger, DateTime, ForeignKey, TIMESTAMP
+from sqlalchemy import create_engine, Column, Integer, String, Text, Numeric, BigInteger, DateTime, ForeignKey, TIMESTAMP, PrimaryKeyConstraint
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from datetime import datetime
@@ -83,13 +83,20 @@ class Metrics(Base):
     userid = Column(BigInteger, ForeignKey('users.userid'))
 
 class DailyMealLog(Base):
-    __tablename__ = "dailymeallog"  # Table name in lowercase
+    __tablename__ = "dailymeallog"
     
-    meallogid = Column(BigInteger, primary_key=True, autoincrement=True)  # Auto-incrementing primary key
-    userid = Column(BigInteger, ForeignKey("users.userid"), nullable=False)  # Foreign key to users table
-    fooditemid = Column(BigInteger, ForeignKey("fooditem.fooditemid"), nullable=False)  # Foreign key to fooditem table
-    datelogged = Column(TIMESTAMP(timezone=True), nullable=False)  # Date when the meal was logged
-
+    # Define the columns
+    meallogid = Column(BigInteger, nullable=False)
+    userid = Column(BigInteger, ForeignKey("users.userid"), nullable=False)
+    fooditemid = Column(BigInteger, ForeignKey("fooditem.fooditemid"), nullable=False)
+    datelogged = Column(TIMESTAMP(timezone=True), nullable=False)
+    
+    # Define the composite primary key
+    __table_args__ = (
+        PrimaryKeyConstraint('meallogid', 'userid', 'fooditemid'),
+    )
+    
+    # Relationships
     food_item = relationship("FoodItem", back_populates="daily_meal_logs")
 
 class FoodItem(Base):
@@ -110,9 +117,11 @@ class FoodItem(Base):
 
 class DailyMealLogView(Base):
     __tablename__ = 'meal_log_view'
-    meallogid = Column(Integer, primary_key=True)
-    userid = Column(Integer)
-    fooditemid = Column(Integer)
+    
+    # Define the columns
+    meallogid = Column(Integer, nullable=False)
+    userid = Column(Integer, nullable=False)
+    fooditemid = Column(Integer, nullable=False)
     datelogged = Column(TIMESTAMP(timezone=True))
     name = Column(Text) 
     calories = Column(Numeric(5, 2))
@@ -123,3 +132,8 @@ class DailyMealLogView(Base):
     sugar = Column(Numeric(5, 2))
     sodium = Column(Numeric(5, 2)) 
     cholesterol = Column(Numeric(5, 2))
+
+    # Define the composite primary key
+    __table_args__ = (
+        PrimaryKeyConstraint('meallogid', 'userid', 'fooditemid'),
+    )

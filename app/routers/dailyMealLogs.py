@@ -69,7 +69,7 @@ async def update_daily_meal_log(meallogid: int, userid: int, fooditemid: int, re
         daily_meal_log.meallogid = data['meallogid']
         daily_meal_log.userid = data['userid']
         daily_meal_log.fooditemid = data['fooditemid']
-        daily_meal_log.datelogged = data['datelogged']
+        daily_meal_log.datelogged = datetime(year=2000,month=1,day=1)
         db.commit()
         db.refresh(daily_meal_log)
         return {
