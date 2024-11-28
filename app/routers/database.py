@@ -1,6 +1,6 @@
 from fastapi import FastAPI, APIRouter, Depends, HTTPException
 from models import Item, Subscription, Professional, User, Base, Metrics, DailyMealLog
-from functions import get_users_by_prof_id, delete_professional_by_id, get_role_from_db
+from functions import get_users_by_prof_id, delete_professional_by_id, get_role_from_db, search_table_column_row
 from database import get_db, engine, setRole, getRole
 from sqlalchemy.orm import Session, Query, mapped_column, Mapped
 from sqlalchemy.sql import text
@@ -82,3 +82,17 @@ async def get_users(userId: str, db: Session = Depends(get_db)):
     role = get_role_from_db(db, userId)  # Assume get_role accepts a string ID
     setRole(role)
     return {"role":role}
+
+@router.get("/role", response_model=dict)
+async def get_role(db: Session = Depends(get_db)):
+    return {"role":getRole()}
+
+@router.get("/search")
+async def sort_data(
+    table: str,
+    column: str,
+    searchQ: str,
+    db: Session = Depends(get_db)
+):
+    items = search_table_column_row(db, table, column, searchQ)
+    return items
