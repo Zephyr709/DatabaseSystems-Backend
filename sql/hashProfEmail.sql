@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX professional_email_key ON public.professional USING hash (email)
